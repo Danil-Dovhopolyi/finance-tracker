@@ -1,30 +1,38 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useForm } from "react-hook-form"
-import { BackButton } from "@/components/BackButton"
-import { authApi, SignInCredentials } from '@/services/api';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { BackButton } from "@/components/BackButton";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useForm } from "react-hook-form";
+import { Navigate } from "react-router-dom";
+
+interface SignInForm {
+  email: string;
+  password: string;
+}
 
 function SignIn() {
-  const { register, handleSubmit, formState: { errors }, setError } = useForm<SignInCredentials>();
+  const { signIn, signInWithGoogle, loading, error, user } = useAuthStore();
+  const { register, handleSubmit, formState: { errors }, setError } = useForm<SignInForm>();
 
-  const onSubmit = async (data: SignInCredentials) => {
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
+  const onSubmit = async (data: SignInForm) => {
     try {
-      const response = await authApi.signIn(data);
-      console.log('Sign in successful:', response);
-      localStorage.setItem('token', response.token);
-    } catch (error) {
-      console.error('Sign in failed:', error);
-      setError('root', {
-        type: 'manual',
-        message: 'Invalid credentials'
+      await signIn(data.email, data.password);
+    } catch (err) {
+      setError("root", {
+        type: "manual",
+        message: "Invalid credentials",
       });
     }
   };
@@ -41,15 +49,16 @@ function SignIn() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="username"
-                  {...register("username", {
-                    required: "Username is required",
+                  id="email"
+                  type="email"
+                  {...register("email", {
+                    required: "Email is required",
                   })}
                 />
-                {errors.username && (
-                  <span className="text-sm text-red-500">{errors.username.message}</span>
+                {errors.email && (
+                  <span className="text-sm text-red-500">{errors.email.message}</span>
                 )}
               </div>
               <div className="flex flex-col space-y-1.5">
@@ -61,21 +70,32 @@ function SignIn() {
                     required: "Password is required",
                     minLength: {
                       value: 6,
-                      message: "Password must be at least 6 characters"
-                    }
+                      message: "Password must be at least 6 characters",
+                    },
                   })}
                 />
                 {errors.password && (
                   <span className="text-sm text-red-500">{errors.password.message}</span>
                 )}
               </div>
-              <Button type="submit" className="w-full">Sign In</Button>
+              {error && <span className="text-sm text-red-500">{error}</span>}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Signing in..." : "Sign In"}
+              </Button>
+              <Button
+                type="button"
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                onClick={signInWithGoogle}
+                disabled={loading}
+              >
+                {loading ? "Signing in..." : "Sign In with Google"}
+              </Button>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
-export default SignIn
+export default SignIn;
