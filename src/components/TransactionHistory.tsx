@@ -8,48 +8,23 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { Transaction } from '@/types/transaction/Transaction';
-import { transactions } from '@/app/mock/mockTransactions';
-import { useInfiniteScroll } from '@/hooks/useInfinityScroll.ts';
+import { useFetchTransactions } from '@/hooks/useFetchTransactions';
+import { useUniqueTransactions } from '@/hooks/useUniqueTransactions.ts';
+import { Transaction } from '@/types/transaction/Transaction.ts';
 
-export function TransactionHistory() {
-    const uniqueTransactions = transactions
-        .filter(
-            (transaction, index, self) =>
-                index ===
-                self.findIndex(
-                    (t) =>
-                        t.date === transaction.date &&
-                        t.description === transaction.description &&
-                        t.amount === transaction.amount
-                )
-        )
-        .map((transaction, index) => ({
-            ...transaction,
-            uniqueId: `transaction-${index}`,
-        }));
+interface TransactionHistoryProps {
+    transactions: Transaction[];
+}
 
-    const fetchTransactions = async (page: number, itemsPerPage: number) => {
-        const startIndex = (page - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-
-        const sortedTransactions = [...uniqueTransactions].sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-
-        return sortedTransactions.slice(startIndex, endIndex);
-    };
-
+export function TransactionHistory({ transactions }: TransactionHistoryProps) {
+    const { uniqueTransactions } = useUniqueTransactions(transactions);
     const {
-        items: displayedTransactions,
-        containerRef: tableContainerRef,
-        lastItemRef: lastTransactionElementRef,
+        displayedTransactions,
         isLoading,
         hasMore,
-    } = useInfiniteScroll<Transaction & { uniqueId: string }>({
-        fetchItems: fetchTransactions,
-        itemsPerPage: 5,
-    });
+        containerRef: tableContainerRef,
+        lastItemRef: lastTransactionElementRef,
+    } = useFetchTransactions(uniqueTransactions, 5);
 
     return (
         <div className="p-2">

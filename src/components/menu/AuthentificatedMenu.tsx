@@ -1,3 +1,8 @@
+import { useMemo } from 'react';
+
+import { BarChart3, CreditCard, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 import {
     MenubarContent,
     MenubarItem,
@@ -5,9 +10,6 @@ import {
     MenubarSeparator,
     MenubarTrigger,
 } from '@/components/ui/menubar';
-import { Link } from 'react-router-dom';
-import { useMemo } from 'react';
-import { BarChart3, CreditCard, Settings } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore.ts';
 
 const authenticatedMenuItems = [
@@ -29,7 +31,7 @@ export function AuthenticatedMenu() {
                         </MenubarTrigger>
                         <MenubarContent>
                             <Link to={path}>
-                                <MenubarItem>View {label}</MenubarItem>
+                                <MenubarItem>Add {label}</MenubarItem>
                             </Link>
                         </MenubarContent>
                     </MenubarMenu>

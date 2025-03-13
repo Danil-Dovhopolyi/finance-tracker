@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { CardFinancialDetails } from '@/components/card/CardFinancialDetails.tsx';
-import { CardVisual } from '@/components/card/CardVisual.tsx';
+
 import { cards } from '@/app/mock/mockCards.ts';
 import { transactions } from '@/app/mock/mockTransactions.ts';
+import { CardFinancialDetails } from '@/components/card/CardFinancialDetails.tsx';
+import { CardVisual } from '@/components/card/CardVisual.tsx';
 import { TransactionHistory } from '@/components/TransactionHistory.tsx';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useTransactionsStore } from '@/store/useTransactionStore.ts';
 
 export function CardDashboard() {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -14,6 +17,13 @@ export function CardDashboard() {
     const nextCard = () => {
         setCurrentIndex((prev) => (prev + 1) % cards.length);
     };
+    const { fetchTransactions } = useTransactionsStore.getState();
+
+    const fetchUserTransactions = async () => {
+        const transactions = await fetchTransactions();
+        console.log(transactions);
+    };
+    fetchUserTransactions().then((r) => console.log(r));
 
     const prevCard = () => {
         setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);

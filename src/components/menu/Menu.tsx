@@ -6,6 +6,7 @@ import {
 import { useAuthStore } from '@/store/useAuthStore.ts';
 import { GuestMenu } from '@/components/menu/GuestMenu.tsx';
 import { AuthenticatedMenu } from '@/components/menu/AuthentificatedMenu.tsx';
+import { Link } from 'react-router-dom';
 
 export function Menu() {
     const { user } = useAuthStore();
@@ -13,9 +14,14 @@ export function Menu() {
     return (
         <Menubar>
             <MenubarMenu>
-                <MenubarTrigger>
-                    {user ? user.displayName || user.email : 'Auth'}
-                </MenubarTrigger>
+                <Link
+                    to="/"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                    <MenubarTrigger>
+                        {user ? user.displayName || user.email : 'Auth'}
+                    </MenubarTrigger>
+                </Link>
             </MenubarMenu>
 
             {user ? <AuthenticatedMenu /> : <GuestMenu />}
